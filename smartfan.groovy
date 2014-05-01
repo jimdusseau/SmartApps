@@ -44,10 +44,10 @@ def scheduleCheck() {
 
   def internalTemp = sensor.currentTemperature
 
-  def warmerOutside = internalTemp < data.current_observation.temp_f
+  def warmerOutside = data.current_observation.temp_f > internalTemp
   log.debug "warmer outside: $warmerOutside Internal temp: $internalTemp low temp: $lowTemp"
 
-  if(warmerOutside && internalTemp > lowTemp) {
+  if(!warmerOutside && internalTemp > lowTemp) {
     log.debug "Turning fans on"
     //sendPush "Turning fans on"
     switches.on()
