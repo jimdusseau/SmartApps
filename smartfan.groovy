@@ -7,7 +7,17 @@
  *  Thanks to Kris Linquist and his original Keep It Cool script
  */
 
- preferences {
+definition(
+    name: "Smart Fan",
+    namespace: "",
+    author: "Jim Dusseau",
+    description: "Turns on a fan when it's colder outside and the inside temp is higher than set.",
+    category: "Convenience",
+    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
+    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience%402x.png",
+    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience%402x.png")
+
+preferences {
   section("Choose a temperature sensor... ") {
     input "sensor", "capability.temperatureMeasurement", title: "Sensor"
   }
@@ -27,6 +37,7 @@
 
 def installed() {
   initialize()
+  state.fanState = -1
 }
 
 def updated() {
@@ -48,13 +59,26 @@ def scheduleCheck() {
   log.debug "warmer outside: $warmerOutside Internal temp: $internalTemp low temp: $lowTemp"
 
   if(!warmerOutside && internalTemp > lowTemp) {
-    log.debug "Turning fans on"
-    //sendPush "Turning fans on"
-    switches.on()
+  	log.debug "Fans should be on"
+    if(state.fanState != 1) {
+      log.debug "Turning fans on"
+      switches.on()
+      state.fanState = 1;
+    }
+    else {
+      log.debug "Fans are already on"
+    }
   }
   else {
-    log.debug "Turning fans off"
-    //sendPush "Turning fans off"
-    switches.off()
+	log.debug "Fans should be off"
+  	if(state.fanState != 0) {
+      log.debug "Turning fans off"
+      switches.off()
+      state.fanState = 0
+    }
+    else {
+      log.debug "Fans are already off"
+    }
+
   }
 }
